@@ -11,14 +11,14 @@ class PrimaryButton extends StatelessWidget {
   final ButtonStyle? style;
 
   const PrimaryButton({
-    Key? key,
+    super.key,
     required this.onPressed,
     required this.text,
     this.isLoading = false,
     this.height = 48,
     this.fullWidth = true,
     this.style,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -36,10 +36,10 @@ class PrimaryButton extends StatelessWidget {
         onPressed: isLoading ? null : onPressed,
         style: style ?? defaultStyle,
         child: isLoading
-            ? Row(
+            ? const Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
+                children: [
                   SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)),
                   SizedBox(width: 12),
                   Text('Please wait...'),
@@ -54,7 +54,7 @@ class PrimaryButton extends StatelessWidget {
 class NavButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final String text;
-  const NavButton({this.onPressed, required this.text, Key? key}) : super(key: key);
+  const NavButton({this.onPressed, required this.text, super.key});
 
   @override
   Widget build(BuildContext context) {

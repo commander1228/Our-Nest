@@ -10,7 +10,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   void _handleLogin(String email, String password) {
-    print('${email},${password}');
+    print('$email,$password');
   }
 
   @override

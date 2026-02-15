@@ -10,7 +10,7 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   void _handleRegister(String email, String password) {
-    print('${email},${password}');
+    print('$email,$password');
   }
 
   @override

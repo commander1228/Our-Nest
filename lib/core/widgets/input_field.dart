@@ -14,7 +14,7 @@ class InputField extends StatelessWidget {
   final bool? filled;
 
   const InputField({
-    Key? key,
+    super.key,
     required this.controller,
     required this.label,
     this.fullWidth = false,
@@ -25,7 +25,7 @@ class InputField extends StatelessWidget {
     this.style,
     this.suffixIcon,
     this.filled = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
