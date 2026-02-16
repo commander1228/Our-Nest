@@ -37,7 +37,7 @@ void main() {
     final nestService = NestService(apiClient);
     final nestRepo = NestRepositoryImpl(nestService);
 
-    final logger = const Logger();
+    const logger = Logger();
 
     // Wrap app startup so uncaught errors are logged to console
     FlutterError.onError = (details) {
@@ -81,8 +81,8 @@ class MyApp extends StatelessWidget {
       theme: theme,
       routes: {
         //'/': (context) => MyHomePage(),
-        '/login': (context) => LoginScreen(),
-        '/register': (context) => RegisterScreen(),
+        '/login': (context) => const LoginScreen(),
+        '/register': (context) => const RegisterScreen(),
         '/home': (context) => const AuthenticatedShell(),
       },
     );

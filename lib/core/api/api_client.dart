@@ -12,8 +12,8 @@ class ApiClient {
   ApiClient(this.tokenStore)
       : dio = Dio(BaseOptions(
           baseUrl: apiBaseUrl,
-          connectTimeout: Duration(milliseconds: connectTimeoutMs),
-          receiveTimeout: Duration(milliseconds: receiveTimeoutMs),
+          connectTimeout: const Duration(milliseconds: connectTimeoutMs),
+          receiveTimeout: const Duration(milliseconds: receiveTimeoutMs),
         )) {
     dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {

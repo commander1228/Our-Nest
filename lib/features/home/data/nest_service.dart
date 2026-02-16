@@ -1,4 +1,3 @@
-import 'package:dio/dio.dart';
 import '../../../core/api/api_client.dart';
 import 'package:test_flutter/shared/models/nest.dart';
 

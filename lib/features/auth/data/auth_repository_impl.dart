@@ -1,7 +1,6 @@
 import '../domain/auth_repository.dart';
 import '../data/auth_service.dart';
 import '../../../core/auth/token_store.dart';
-import '../../../shared/models/auth_response.dart';
 import '../../../shared/models/login_request.dart';
 
 class AuthRepositoryImpl implements AuthRepository {

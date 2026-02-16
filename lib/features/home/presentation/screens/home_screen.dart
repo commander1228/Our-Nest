@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:test_flutter/core/logger/logger.dart';
+import 'package:test_flutter/core/widgets/app_text_input_modal.dart';
+import 'package:test_flutter/core/widgets/primary_button.dart';
 import 'package:test_flutter/features/home/domain/nest_repository.dart';
 import 'package:test_flutter/features/home/presentation/widgets/nest_card.dart';
 import 'package:test_flutter/shared/models/nest.dart';
-
-
-
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,6 +18,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late final NestRepository _nestRepo;
   bool _isLoading = false;
   final List<Nest> _nests = [];
+  RouteObserver<ModalRoute<void>>? _routeObserver;
 
   @override
   void initState() {
@@ -57,12 +57,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-  void _addDummy() {
-    setState(() {
-      final id = DateTime.now().millisecondsSinceEpoch.toString();
-      _nests.add(Nest(name: 'New Nest $id', joinCode: id, members: []));
-    });
-  }
+Future<void> _addNest(String name) async {
+  setState(() => _isLoading = true);
+  try {
+    await _nestRepo.createNest(name);
+    await _loadNests();
+
+}catch (e) {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('login failed: $e')));
+    }
+}
 
 
 
@@ -71,22 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Widget body;
     if (_isLoading) {
       body = const Center(child: CircularProgressIndicator());
-    } else if (_nests.isEmpty) {
-      body = Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.group_work_outlined, size: 72, color: Theme.of(context).hintColor),
-            const SizedBox(height: 12),
-            Text('No nests yet', style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: 8),
-            const Text('Create your first nest to get started.', textAlign: TextAlign.center),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(onPressed: _addDummy, icon: const Icon(Icons.add), label: const Text('Create')),
-          ],
-        ),
-      );
-    } else {
+    }  else {
       body = ListView.builder(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         itemCount: _nests.length,
@@ -96,10 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
             key: ValueKey(n.joinCode), // stable key
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: NestCard(
-              nest: n,
-              onPressed: () {
-                // open details or navigate
-              },
+              nest: n
             ),
           );
         },
@@ -107,10 +94,35 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Home')),
       body: body,
       floatingActionButton: FloatingActionButton(
-        onPressed: _addDummy,
+        onPressed: () {
+          final nameController = TextEditingController();
+          AppTextInputModal.show(
+            context: context,
+            title: 'Create Nest',
+            content: TextField(
+              controller: nameController,
+              decoration: const InputDecoration(labelText: 'Nest name'),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  final name = nameController.text;
+                  if (name.isNotEmpty) {
+                    _addNest(name);
+                  }
+                  Navigator.pop(context);
+                },
+                child: const Text('Create'),
+              ),
+            ],
+          );
+        },
         child: const Icon(Icons.add),
       ),
     );

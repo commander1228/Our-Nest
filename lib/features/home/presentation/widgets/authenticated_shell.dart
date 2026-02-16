@@ -23,7 +23,6 @@ class _AuthenticatedShellState extends State<AuthenticatedShell> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_titles[_index])),
       body: IndexedStack(index: _index, children: _pages),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _index,
