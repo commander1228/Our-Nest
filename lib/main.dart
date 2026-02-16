@@ -4,11 +4,20 @@ import 'package:json_theme/json_theme.dart';
 
 import 'package:flutter/services.dart'; // For rootBundle
 import 'dart:convert';
-
+import 'dart:async';
+import 'package:provider/provider.dart';
+import 'package:test_flutter/core/logger/logger.dart';
+import 'package:test_flutter/core/navigation/startup_screen.dart';
 import 'package:test_flutter/features/auth/presentation/screens/login_screen.dart';
 import 'package:test_flutter/features/auth/presentation/screens/register_screen.dart';
 import 'package:test_flutter/core/widgets/primary_button.dart';
+import 'package:test_flutter/features/home/presentation/screens/home_screen.dart';
 import "core/navigation/navigation_service.dart";
+import 'package:test_flutter/core/auth/token_store.dart';
+import 'package:test_flutter/core/api/api_client.dart';
+import 'package:test_flutter/features/auth/data/auth_service.dart';
+import 'package:test_flutter/features/auth/data/auth_repository_impl.dart';
+import 'package:test_flutter/features/auth/domain/auth_repository.dart';
  // For jsonDecode
 
 void main() async {
@@ -17,12 +26,38 @@ void main() async {
   final themeStr = await rootBundle.loadString('assets/appainter_theme.json');
   final themeJson = jsonDecode(themeStr);
   final theme = ThemeDecoder.decodeThemeData(themeJson)!;
+  final tokenStore = TokenStore();
+  final apiClient = ApiClient(tokenStore);
+  final authService = AuthService(apiClient);
+  final authRepo = AuthRepositoryImpl(authService, tokenStore);
 
-  runApp(MyApp(theme: theme));
+  final logger = const Logger();
+
+  // Wrap app startup so uncaught errors are logged to console
+  FlutterError.onError = (details) {
+    logger.error('Flutter error', details.exception, details.stack);
+  };
+
+  runZonedGuarded(() {
+    runApp(
+      MultiProvider(
+        providers: [
+          Provider<TokenStore>.value(value: tokenStore),
+          Provider<ApiClient>.value(value: apiClient),
+          Provider<AuthService>.value(value: authService),
+          Provider<AuthRepository>.value(value: authRepo),
+          Provider<Logger>.value(value: logger),
+        ],
+        child: MyApp(theme: theme),
+      ),
+    );
+  }, (error, stack) {
+    logger.error('Uncaught zone error', error, stack);
+  });
 }
 
 class MyApp extends StatelessWidget {
-   final ThemeData theme;
+  final ThemeData theme;
   const MyApp({super.key, required this.theme});
 
 
@@ -30,19 +65,20 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
    return MaterialApp(
     navigatorKey: navigationService.navigatorKey,
-    home: const MyHomePage(title: 'Home Page'),
+    home:const StartupScreen(),
     theme: theme,
     routes: {
-      '/login': (context) => const LoginScreen(),
-      '/register': (context) => const RegisterScreen(),
+      //'/': (context) => MyHomePage(),
+      '/login': (context) => LoginScreen(),
+      '/register': (context) => RegisterScreen(),
+      '/home': (context) => HomeScreen()
     },
   );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-  final String title;
+  const MyHomePage({super.key});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
