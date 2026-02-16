@@ -21,7 +21,9 @@ class _LoginScreenState extends State<LoginScreen> {
       await authRepo.login(email, password);
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Login successfull')));
-      navigationService.goTo('/login');
+      navigationService.navigatorKey.currentState
+          ?.pushNamedAndRemoveUntil('/home', (r) => false);
+      return;
     } catch (e) {
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('login failed: $e')));

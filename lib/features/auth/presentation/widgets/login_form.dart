@@ -8,7 +8,7 @@ class LoginForm extends StatefulWidget {
   final void Function(String email, String password) onSubmit;
   final bool isLoading;
 
-  const LoginForm({
+const LoginForm({
     super.key,
     required this.onSubmit,
     this.isLoading = false,

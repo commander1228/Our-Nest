@@ -21,7 +21,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       await authRepo.register(email, password);
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Registered successfully')));
-      navigationService.goTo('/login');
+      navigationService.navigatorKey.currentState
+          ?.pushNamedAndRemoveUntil('/home', (r) => false);
+      return;
     } catch (e) {
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Registration failed: $e')));

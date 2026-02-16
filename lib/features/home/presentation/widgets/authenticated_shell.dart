@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:test_flutter/features/settings/presentation/screens/settings_screen.dart';
 import '../../presentation//screens/home_screen.dart';
 
 class AuthenticatedShell extends StatefulWidget {
@@ -16,7 +17,7 @@ class _AuthenticatedShellState extends State<AuthenticatedShell> {
   final List<Widget> _pages = const [
     HomeScreen(),
     Center(child: Text('Profile content')),
-    Center(child: Text('Settings content')),
+    SettingsScreen(),
   ];
 
   @override

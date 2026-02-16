@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:json_theme/json_theme.dart';
 
-
 import 'package:flutter/services.dart'; // For rootBundle
 import 'dart:convert';
 import 'dart:async';
@@ -11,6 +10,9 @@ import 'package:test_flutter/core/navigation/startup_screen.dart';
 import 'package:test_flutter/features/auth/presentation/screens/login_screen.dart';
 import 'package:test_flutter/features/auth/presentation/screens/register_screen.dart';
 import 'package:test_flutter/core/widgets/primary_button.dart';
+import 'package:test_flutter/features/home/data/nest_repository_impl.dart';
+import 'package:test_flutter/features/home/domain/nest_repository.dart';
+import 'package:test_flutter/features/home/data/nest_service.dart';
 import 'package:test_flutter/features/home/presentation/screens/home_screen.dart';
 import 'package:test_flutter/features/home/presentation/widgets/authenticated_shell.dart';
 import "core/navigation/navigation_service.dart";
@@ -19,7 +21,7 @@ import 'package:test_flutter/core/api/api_client.dart';
 import 'package:test_flutter/features/auth/data/auth_service.dart';
 import 'package:test_flutter/features/auth/data/auth_repository_impl.dart';
 import 'package:test_flutter/features/auth/domain/auth_repository.dart';
- // For jsonDecode
+// For jsonDecode
 
 void main() {
   runZonedGuarded(() async {
@@ -32,6 +34,8 @@ void main() {
     final apiClient = ApiClient(tokenStore);
     final authService = AuthService(apiClient);
     final authRepo = AuthRepositoryImpl(authService, tokenStore);
+    final nestService = NestService(apiClient);
+    final nestRepo = NestRepositoryImpl(nestService);
 
     final logger = const Logger();
 
@@ -47,6 +51,8 @@ void main() {
           Provider<ApiClient>.value(value: apiClient),
           Provider<AuthService>.value(value: authService),
           Provider<AuthRepository>.value(value: authRepo),
+          Provider<NestService>.value(value: nestService),
+          Provider<NestRepository>.value(value: nestRepo),
           Provider<Logger>.value(value: logger),
         ],
         child: MyApp(theme: theme),
@@ -67,20 +73,19 @@ class MyApp extends StatelessWidget {
   final ThemeData theme;
   const MyApp({super.key, required this.theme});
 
-
   @override
   Widget build(BuildContext context) {
-   return MaterialApp(
-    navigatorKey: navigationService.navigatorKey,
-    home:const StartupScreen(),
-    theme: theme,
-    routes: {
-      //'/': (context) => MyHomePage(),
-      '/login': (context) => LoginScreen(),
-      '/register': (context) => RegisterScreen(),
-      '/home': (context) => const AuthenticatedShell(),
-    },
-  );
+    return MaterialApp(
+      navigatorKey: navigationService.navigatorKey,
+      home: const StartupScreen(),
+      theme: theme,
+      routes: {
+        //'/': (context) => MyHomePage(),
+        '/login': (context) => LoginScreen(),
+        '/register': (context) => RegisterScreen(),
+        '/home': (context) => const AuthenticatedShell(),
+      },
+    );
   }
 }
 
@@ -91,27 +96,29 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-
-
 class _MyHomePageState extends State<MyHomePage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: 
-        ConstrainedBox(constraints: const BoxConstraints(maxWidth: 420),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Text('Basic Flutter App',style: Theme.of(context).textTheme.headlineLarge),
-            const SizedBox(height: 88),
-            NavButton(onPressed:() => navigationService.goTo("/login") , text: 'Login'),
-            const SizedBox(height: 48),
-            NavButton(onPressed:() => navigationService.goTo("/register") , text: 'Sign Up'),
-          ],
-        ),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text('Basic Flutter App',
+                  style: Theme.of(context).textTheme.headlineLarge),
+              const SizedBox(height: 88),
+              NavButton(
+                  onPressed: () => navigationService.goTo("/login"),
+                  text: 'Login'),
+              const SizedBox(height: 48),
+              NavButton(
+                  onPressed: () => navigationService.goTo("/register"),
+                  text: 'Sign Up'),
+            ],
+          ),
         ),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
