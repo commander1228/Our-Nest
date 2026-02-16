@@ -12,6 +12,7 @@ import 'package:test_flutter/features/auth/presentation/screens/login_screen.dar
 import 'package:test_flutter/features/auth/presentation/screens/register_screen.dart';
 import 'package:test_flutter/core/widgets/primary_button.dart';
 import 'package:test_flutter/features/home/presentation/screens/home_screen.dart';
+import 'package:test_flutter/features/home/presentation/widgets/authenticated_shell.dart';
 import "core/navigation/navigation_service.dart";
 import 'package:test_flutter/core/auth/token_store.dart';
 import 'package:test_flutter/core/api/api_client.dart';
@@ -77,7 +78,7 @@ class MyApp extends StatelessWidget {
       //'/': (context) => MyHomePage(),
       '/login': (context) => LoginScreen(),
       '/register': (context) => RegisterScreen(),
-      '/home': (context) => HomeScreen()
+      '/home': (context) => const AuthenticatedShell(),
     },
   );
   }
