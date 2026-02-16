@@ -20,25 +20,25 @@ import 'package:test_flutter/features/auth/data/auth_repository_impl.dart';
 import 'package:test_flutter/features/auth/domain/auth_repository.dart';
  // For jsonDecode
 
-void main() async {
-   WidgetsFlutterBinding.ensureInitialized();
+void main() {
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
 
-  final themeStr = await rootBundle.loadString('assets/appainter_theme.json');
-  final themeJson = jsonDecode(themeStr);
-  final theme = ThemeDecoder.decodeThemeData(themeJson)!;
-  final tokenStore = TokenStore();
-  final apiClient = ApiClient(tokenStore);
-  final authService = AuthService(apiClient);
-  final authRepo = AuthRepositoryImpl(authService, tokenStore);
+    final themeStr = await rootBundle.loadString('assets/appainter_theme.json');
+    final themeJson = jsonDecode(themeStr);
+    final theme = ThemeDecoder.decodeThemeData(themeJson)!;
+    final tokenStore = TokenStore();
+    final apiClient = ApiClient(tokenStore);
+    final authService = AuthService(apiClient);
+    final authRepo = AuthRepositoryImpl(authService, tokenStore);
 
-  final logger = const Logger();
+    final logger = const Logger();
 
-  // Wrap app startup so uncaught errors are logged to console
-  FlutterError.onError = (details) {
-    logger.error('Flutter error', details.exception, details.stack);
-  };
+    // Wrap app startup so uncaught errors are logged to console
+    FlutterError.onError = (details) {
+      logger.error('Flutter error', details.exception, details.stack);
+    };
 
-  runZonedGuarded(() {
     runApp(
       MultiProvider(
         providers: [
@@ -52,7 +52,13 @@ void main() async {
       ),
     );
   }, (error, stack) {
-    logger.error('Uncaught zone error', error, stack);
+    // If logger isn't available here, print as fallback
+    try {
+      const Logger().error('Uncaught zone error', error, stack);
+    } catch (_) {
+      // ignore: avoid_print
+      print('Uncaught zone error: $error\n$stack');
+    }
   });
 }
 

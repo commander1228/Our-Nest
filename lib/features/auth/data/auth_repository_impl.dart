@@ -1,6 +1,8 @@
 import '../domain/auth_repository.dart';
 import '../data/auth_service.dart';
 import '../../../core/auth/token_store.dart';
+import '../../../shared/models/auth_response.dart';
+import '../../../shared/models/login_request.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthService service;
@@ -10,20 +12,24 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<void> login(String email, String password) async {
-    final data = await service.login(email, password);
-    final access = data['accessToken'] as String?;
-    final refresh = data['refreshToken'] as String?;
-    if (access == null || refresh == null) throw Exception('Invalid login response');
-    await tokenStore.persistTokens(access, refresh);
+    final req = LoginRequest(email: email, password: password);
+    final authResponse = await service.login(req);
+    if (authResponse.accessToken.isEmpty || authResponse.refreshToken.isEmpty) {
+      throw Exception('Invalid login response');
+    }
+    await tokenStore.persistTokens(
+        authResponse.accessToken, authResponse.refreshToken);
   }
 
   @override
   Future<void> register(String email, String password) async {
-    final data = await service.register(email, password);
-    final access = data['accessToken'] as String?;
-    final refresh = data['refreshToken'] as String?;
-    if (access == null || refresh == null) throw Exception('Invalid Register response');
-    await tokenStore.persistTokens(access, refresh);
+    final req = LoginRequest(email: email, password: password);
+    final authResponse = await service.register(req);
+    if (authResponse.accessToken.isEmpty || authResponse.refreshToken.isEmpty) {
+      throw Exception('Invalid register response');
+    }
+    await tokenStore.persistTokens(
+        authResponse.accessToken, authResponse.refreshToken);
   }
 
   @override
@@ -31,10 +37,12 @@ class AuthRepositoryImpl implements AuthRepository {
     final refresh = await tokenStore.getRefreshToken();
     if (refresh == null) return false;
     try {
-      final data = await service.refresh(refresh);
-      final access = data['accessToken'] as String?;
-      final newRefresh = data['refreshToken'] as String? ?? refresh;
-      if (access == null) return false;
+      final authResponse = await service.refresh(refresh);
+      final access = authResponse.accessToken;
+      final newRefresh = authResponse.refreshToken.isNotEmpty
+          ? authResponse.refreshToken
+          : refresh;
+      if (access.isEmpty) return false;
       await tokenStore.persistTokens(access, newRefresh);
       return true;
     } catch (_) {
